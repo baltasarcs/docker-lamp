@@ -1,0 +1,17 @@
+<VirtualHost *:80>
+	ServerName mydomain
+
+	DocumentRoot /var/www/html/myappdir
+
+	#ErrorLog ${APACHE_LOG_DIR}/error.log
+	#CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+	ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://php:9000/var/www/html/myappdir/$1
+	
+	<Directory "/var/www/html/myappdir">
+		Order allow,deny
+		Allow from all
+		AllowOverride FileInfo All
+		Require all granted
+	</Directory>
+</VirtualHost>

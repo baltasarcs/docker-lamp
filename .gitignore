@@ -1,0 +1,7 @@
+mysql/8.0/data/*
+mysql/8.0/log/*
+.env
+apache/logs/*
+apache/conf/*
+!apache/conf/site.conf-example
+!apache/conf/default.conf
