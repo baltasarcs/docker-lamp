@@ -20,6 +20,16 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev \
  && docker-php-ext-install pdo
 
 #####################################
+# NPM:
+#####################################
+
+ARG INSTALL_NPM=false
+RUN if [ ${INSTALL_NPM} = true ]; then \
+    # install nodejs and npm
+    curl -sL https://deb.nodesource.com/setup_11.x | bash - && apt-get install -y --no-install-recommends nodejs \
+;fi
+
+#####################################
 # GD:
 #####################################
 
@@ -73,22 +83,29 @@ RUN if [ ${INSTALL_PDO_POSTGRESQL} = true ]; then \
 ;fi
 
 #####################################
-# PDO_ORACLE:
+# OCI8_PDO_ORACLE:
 #####################################
 
-#ARG INSTALL_PDO_ORACLE=false
-#RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
-#COPY instantclient-basic-linux.x64-19.5.0.0.0dbru.zip /opt/oracle/instantclient-basic-linux.x64-19.5.0.0.0dbru.zip
-#COPY instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip /opt/oracle/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip
-#RUN unzip /opt/oracle/instantclient-basic-linux.x64-19.5.0.0.0dbru.zip -d /opt/oracle \
-#    unzip /opt/oracle/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /opt/oracle \
-#    && ln -s /opt/oracle/instantclient_19_5/libclntsh.so.12.1 /opt/oracle/instantclient_19_1/libclntsh.so \
-#    && ln -s /opt/oracle/instantclient_19_5/libclntshcore.so.19.1 /opt/oracle/instantclient_19_1/libclntshcore.so \
-#    && ln -s /opt/oracle/instantclient_19_5/libocci.so.12.1 /opt/oracle/instantclient_19_1/libocci.so \
-#    && rm -rf /opt/oracle/*.zip
-#RUN echo 'instantclient,/opt/oracle/instantclient_19_5/' | pecl install oci8 \
-#    RUN docker-php-ext-install pdo_oci \
-#;fi
+ARG INSTALL_PDO_ORACLE=false
+RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
+    # Install pdo_oracle and oci8
+    apt-get install -y --no-install-recommends wget bsdtar libaio1 && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-sqlplus-linux.x64-19.5.0.0.0dbru.zip && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip && \
+    unzip instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
+    unzip instantclient-sqlplus-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
+    unzip instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \        
+    ln -s /usr/local/instantclient_19_5 /usr/local/instantclient && \
+    #ln -s /usr/local/instantclient_19_5/libclntsh.so.19.1 /usr/local/instantclient/libclntsh.so && \
+    ln -s /usr/local/instantclient_19_5/lib* /usr/lib && \
+    ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
+    rm -rf *.zip && \
+    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8 && \
+    docker-php-ext-enable oci8 && \
+    docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient && \
+    docker-php-ext-install pdo_oci \
+;fi
 
 #####################################
 # bcmath:
@@ -118,20 +135,17 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
 
 ARG INSTALL_XDEBUG=false
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-    pecl install xdebug \
-    docker-php-ext-enable xdebug \
+    pecl install xdebug && docker-php-ext-enable xdebug \
 
-RUN echo -e "\n\ 
-    zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so) \n\
-    xdebug.remote_enable=on \n\
-    xdebug.remote_handler=dbgp \n\
-    xdebug.remote_port=9001 \n\
-    xdebug.remote_autostart=on \n\
-    xdebug.remote_connect_back=on \n\
-    xdebug.idekey=docker \n\
-    xdebug.remote_log=/var/log/xdebug.log \n\
-    xdebug.default_enable=on" > /usr/local/etc/php/conf.d/xdebug.ini \
-
+RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_handler=dbgp" >>  /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_autostart=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_connect_back=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.idekey=docker" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_log=/var/log/xdebug.log" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.default_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
 ;fi
 
 #####################################
@@ -179,4 +193,4 @@ RUN find /var/www/html -type f -exec chmod u+rw,g+rw,o+r {} +
 
 CMD ["php-fpm"]
 
-EXPOSE 9000 9001
+EXPOSE 9000 80
