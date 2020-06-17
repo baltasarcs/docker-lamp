@@ -86,8 +86,8 @@ RUN if [ ${INSTALL_PDO_POSTGRESQL} = true ]; then \
 # OCI8_PDO_ORACLE:
 #####################################
 
-ARG INSTALL_PDO_ORACLE=false
-RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
+ARG INSTALL_OCI8_PDO_ORACLE=false
+RUN if [ ${INSTALL_OCI8_PDO_ORACLE} = true ]; then \
     # Install pdo_oracle and oci8
     apt-get install -y --no-install-recommends wget bsdtar libaio1 && \
     wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip && \
