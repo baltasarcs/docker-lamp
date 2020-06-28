@@ -130,25 +130,6 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
 # COPY ./../php/7.4-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 #####################################
-# xdebug:
-#####################################
-
-ARG INSTALL_XDEBUG=false
-RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-    pecl install xdebug && docker-php-ext-enable xdebug \
-
-RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_handler=dbgp" >>  /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_autostart=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_connect_back=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.idekey=docker" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_log=/var/log/xdebug.log" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.default_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-;fi
-
-#####################################
 # composer:
 #####################################
 
@@ -179,8 +160,26 @@ RUN if [ ${INSTALL_JSON_XML} = true ]; then \
     && docker-php-ext-install json xml dom xmlrpc xsl \
 ;fi
 
+#####################################
+# xdebug:
+#####################################
+
+ARG INSTALL_XDEBUG=false
+RUN if [ ${INSTALL_XDEBUG} = true ]; then \
+    pecl install xdebug && docker-php-ext-enable xdebug && \
+    printf "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so) \n\
+        	xdebug.remote_enable=on \n\
+        	xdebug.remote_handler=dbgp \n\
+        	xdebug.remote_port=9001 \n\
+        	xdebug.remote_autostart=on \n\
+        	xdebug.remote_connect_back=on \n\
+        	xdebug.idekey=docker \n\
+        	xdebug.remote_log=~/xdebug.log \n\
+        	xdebug.default_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+;fi
+
 # Clear package lists
-RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/* && apt-get autoremove
 
 # clear source
 RUN docker-php-source delete
@@ -193,4 +192,4 @@ RUN find /var/www/html -type f -exec chmod u+rw,g+rw,o+r {} +
 
 CMD ["php-fpm"]
 
-EXPOSE 9000 80
+EXPOSE 9000 9001

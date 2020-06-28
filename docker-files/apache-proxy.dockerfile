@@ -13,14 +13,11 @@ RUN a2enmod proxy \
     && a2enmod ssl \
     && a2enmod rewrite \
     && a2enmod proxy_fcgi \
+    && a2enmod deflate \
     && service apache2 stop
 
 #Ports
 EXPOSE 80 443
-
-#Volumes
-#VOLUME /opt/proxy-conf
-VOLUME /etc/apache2/sites-available
 
 #Launch Apache2 on FOREGROUND
 COPY script/apache-proxy-start.sh /opt/

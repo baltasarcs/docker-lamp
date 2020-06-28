@@ -4,4 +4,4 @@ mysql/8.0/log/*
 apache/logs/*
 apache/conf/*
 !apache/conf/site.conf-example
-!apache/conf/default.conf
+!apache/conf/000-default.conf

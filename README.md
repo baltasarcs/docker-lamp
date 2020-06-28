@@ -35,5 +35,10 @@ Adicionando ao final do arquivo o redirecionamento p/ o(s) virtual hosts definid
 127.0.0.1 mydomain.com
 127.0.0.1 otherdomain.com.br
 ```
-**No windows podem haver problemas com o drive bridge, portanto altere no final
-do arquivo docker-compose.yml de bridge para nat**
+**
+Se usa windows
+- Podem ocorrer problemas com o drive bridge, se for o seu caso, altere no final do arquivo docker-compose.yml de bridge para nat.
+- No docker-compose comente os volumes de timezone e localtime conforme mostrado abaixo:
+     # - /etc/timezone:/etc/timezone:ro
+     # - /etc/localtime:/etc/localtime:ro
+**

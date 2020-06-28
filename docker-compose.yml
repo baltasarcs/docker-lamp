@@ -4,7 +4,7 @@ services:
   apache:
     container_name: apache
     image: apache-proxy
-    restart: always
+    restart: on-failure
     build:
       dockerfile: apache-proxy.dockerfile
       context: ./docker-files/
@@ -15,9 +15,7 @@ services:
       - ${APPLICATION}:/var/www/html
       - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
       - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
-      - /etc/ssl/private:/opt/ssl
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - ${APACHE_SSL_PATH}:/etc/ssl/private
     links:
       - php
     networks:
@@ -40,13 +38,14 @@ services:
         - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
         - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
         - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
-        - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
         - INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}
         - INSTALL_JSON_XML=${PHP_FPM_INSTALL_JSON_XML}
         - INSTALL_COMPOSER=${PHP_FPM_INSTALL_COMPOSER}
         - INSTALL_NPM=${PHP_FPM_INSTALL_NPM}
+        - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
     expose:
       - "9000"
+      - "9001"
     volumes:
       - ${APPLICATION}:/var/www/html/
       - ${PHP_INI}:/usr/local/etc/php/php.ini
