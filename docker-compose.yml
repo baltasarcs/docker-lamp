@@ -66,6 +66,9 @@ services:
     container_name: php5.6-fpm
     restart: always
     image: php:5.6-fpm
+    build:
+      dockerfile: php5.6-fpm.dockerfile
+      context: ./docker-files/
     expose:
       - "9000"
     volumes:
