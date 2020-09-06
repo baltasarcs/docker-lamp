@@ -4,7 +4,7 @@ MAINTAINER Baltasar Santos "baltasarc.s@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-#Install apache 
+#Install apache
 RUN apt -y update && apt -y install apache2 vim
 
 #Enable proxy mode
@@ -17,7 +17,7 @@ RUN a2enmod proxy \
     && service apache2 stop
 
 #Ports
-EXPOSE 80 443
+EXPOSE 80 8080 443
 
 #Launch Apache2 on FOREGROUND
 COPY script/apache-proxy-start.sh /opt/

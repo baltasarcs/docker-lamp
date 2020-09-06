@@ -10,14 +10,18 @@ services:
       context: ./docker-files/
     ports:
       - "${APACHE_HOST_HTTP_PORT}:80"
+      - "${APACHE_HOST_HTTP_OLD_PORT}:8080"
       - "${APACHE_HOST_HTTPS_PORT}:443"
     volumes:
       - ${APPLICATION}:/var/www/html
       - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
       - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
       - ${APACHE_SSL_PATH}:/etc/ssl/private
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     links:
       - php
+      - phpold
     networks:
       - docker-network
 
@@ -58,6 +62,25 @@ services:
     depends_on:
       - mysql
 
+  phpold:
+    container_name: php5.6-fpm
+    restart: always
+    image: php:5.6-fpm
+    expose:
+      - "9000"
+    volumes:
+      - /var/www/5.6:/var/www/html/5.6
+     #- ${PHP_INI}:/usr/local/etc/php/php.ini
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    links:
+      - mysql
+    networks:
+      - docker-network
+    depends_on:
+      - mysql
+      - php
+
   mysql:
     image: mysql:8
     container_name: mysql8
@@ -74,6 +97,8 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    security_opt:
+      - seccomp:unconfined
     networks:
       - docker-network
 
