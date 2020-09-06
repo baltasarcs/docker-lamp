@@ -16,6 +16,8 @@ services:
       - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
       - ${APACHE_SITES_PATH}:/etc/apache2/sites-available
       - ${APACHE_SSL_PATH}:/etc/ssl/private
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     links:
       - php
     networks:
