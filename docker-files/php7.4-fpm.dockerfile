@@ -105,7 +105,7 @@ RUN if [ ${INSTALL_OCI8_PDO_ORACLE} = true ]; then \
     ln -s /usr/local/instantclient_19_5/lib* /usr/lib && \
     ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
     rm -rf *.zip && \
-    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8 && \
+    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8-2.2.0 && \
     docker-php-ext-enable oci8 && \
     docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient && \
     docker-php-ext-install pdo_oci \
