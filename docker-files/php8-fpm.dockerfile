@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8-fpm
 
 MAINTAINER Baltasar Santos <baltasarc.s@gmail.com>
 
@@ -10,7 +10,8 @@ RUN apt-get update \
     openssl \
     git \
     unzip \
-    libxml2-dev
+    libxml2-dev \
+    libxslt-dev
 
 # Common php-ext and requirements
 RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
@@ -30,7 +31,7 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
 ARG INSTALL_NPM=false
 RUN if [ ${INSTALL_NPM} = true ]; then \
     # install nodejs and npm
-    curl -sL https://deb.nodesource.com/setup_15.x | bash - && apt-get install -y --no-install-recommends nodejs \
+    curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y --no-install-recommends nodejs \
 ;fi
 
 #####################################
@@ -160,8 +161,7 @@ RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
 ARG INSTALL_JSON_XML=false
 RUN if [ ${INSTALL_JSON_XML} = true ]; then \
     # Install xml, dom xmlrpc, xsl, and requirements
-    apt-get install -y --no-install-recommends libxml2-dev libxslt-dev \
-    && docker-php-ext-install json xml dom xmlrpc xsl \
+    docker-php-ext-insta xml xsl \
 ;fi
 
 #####################################
