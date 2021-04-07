@@ -83,7 +83,7 @@
 ; development version only in development environments, as errors shown to
 ; application users can inadvertently leak otherwise secure information.
 
-; This is the php.ini-development INI file.
+; This is the php.ini-production INI file.
 
 ;;;;;;;;;;;;;;;;;;;
 ; Quick Reference ;
@@ -363,7 +363,9 @@ zend.enable_gc = On
 
 ; Allows to include or exclude arguments from stack traces generated for exceptions
 ; Default: Off
-zend.exception_ignore_args = Off
+; In production, it is recommended to turn this setting on to prohibit the output 
+; of sensitive information in stack traces
+zend.exception_ignore_args = On
 
 ;;;;;;;;;;;;;;;;;
 ; Miscellaneous ;
@@ -393,7 +395,7 @@ max_execution_time = 30
 ; Development Value: 60 (60 seconds)
 ; Production Value: 60 (60 seconds)
 ; http://php.net/max-input-time
-max_input_time = 90
+max_input_time = 60
 
 ; Maximum input variable nesting level
 ; http://php.net/max-input-nesting-level
@@ -404,7 +406,7 @@ max_input_time = 90
 
 ; Maximum amount of memory a script may consume
 ; http://php.net/memory-limit
-memory_limit = 712M
+memory_limit = 128M
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Error handling and logging ;
@@ -460,7 +462,7 @@ memory_limit = 712M
 ; Development Value: E_ALL
 ; Production Value: E_ALL & ~E_DEPRECATED & ~E_STRICT
 ; http://php.net/error-reporting
-error_reporting = E_ALL
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
 
 ; This directive controls whether or not and where PHP will output errors,
 ; notices and warnings too. Error output is very useful during development, but
@@ -477,7 +479,7 @@ error_reporting = E_ALL
 ; Development Value: On
 ; Production Value: Off
 ; http://php.net/display-errors
-display_errors = On
+display_errors = Off
 
 ; The display of errors which occur during PHP's startup sequence are handled
 ; separately from display_errors. PHP's default behavior is to suppress those
@@ -488,7 +490,7 @@ display_errors = On
 ; Development Value: On
 ; Production Value: Off
 ; http://php.net/display-startup-errors
-display_startup_errors = On
+display_startup_errors = Off
 
 ; Besides displaying errors, PHP can also log errors to locations such as a
 ; server-specific log, STDERR, or a location specified by the error_log
@@ -525,7 +527,9 @@ report_memleaks = On
 ; This setting is on by default.
 ;report_zend_debug = 0
 
-; Store the last error/warning message in $php_errormsg (boolean).
+; Store the last error/warning message in $php_errormsg (boolean). Setting this value
+; to On can assist in debugging and is appropriate for development servers. It should
+; however be disabled on production servers.
 ; This directive is DEPRECATED.
 ; Default Value: Off
 ; Development Value: Off
@@ -687,7 +691,7 @@ auto_globals_jit = On
 ; Its value may be 0 to disable the limit. It is ignored if POST data reading
 ; is disabled through enable_post_data_reading.
 ; http://php.net/post-max-size
-post_max_size = 300M
+post_max_size = 8M
 
 ; Automatically add files before PHP document.
 ; http://php.net/auto-prepend-file
@@ -839,7 +843,7 @@ file_uploads = On
 
 ; Maximum allowed size for uploaded files.
 ; http://php.net/upload-max-filesize
-upload_max_filesize = 15M
+upload_max_filesize = 2M
 
 ; Maximum number of files that can be uploaded via a single request
 max_file_uploads = 20
@@ -1186,7 +1190,7 @@ mysqlnd.collect_statistics = On
 
 ; Enable / Disable collection of memory usage statistics by mysqlnd which can be
 ; used to tune and monitor MySQL operations.
-mysqlnd.collect_memory_statistics = On
+mysqlnd.collect_memory_statistics = Off
 
 ; Records communication from all extensions using mysqlnd to the specified log
 ; file.
@@ -1559,7 +1563,7 @@ session.sid_bits_per_character = 5
 ; Development Value: 1
 ; Production Value: -1
 ; http://php.net/zend.assertions
-zend.assertions = 1
+zend.assertions = -1
 
 ; Assert(expr); active by default.
 ; http://php.net/assert.active
@@ -1585,8 +1589,6 @@ zend.assertions = 1
 ; error_reporting(0) around the eval().
 ; http://php.net/assert.quiet-eval
 ;assert.quiet_eval = 0
-
-
 
 [COM]
 ; path to a file containing GUIDs, IIDs or filenames of files with TypeLibs
@@ -1881,7 +1883,7 @@ ldap.max_links = -1
 
 ; Enables or disables copying of PHP code (text segment) into HUGE PAGES.
 ; This should improve performance, but requires appropriate OS configuration.
-;opcache.huge_code_pages=0
+;opcache.huge_code_pages=1
 
 ; Validate cached file permissions.
 ;opcache.validate_permission=0

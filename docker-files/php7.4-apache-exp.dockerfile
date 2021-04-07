@@ -1,6 +1,6 @@
-FROM php:7.4-fpm
+FROM php:7.4-apache-buster
 
-MAINTAINER Baltasar Santos <baltasarc.s@gmail.com>
+LABEL maintainer="Baltasar Santos <baltasarc.s@gmail.com>"
 
 # Additional tools
 RUN apt-get update \
@@ -22,6 +22,11 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
  && docker-php-ext-install zip \
  && docker-php-ext-install soap \
  && docker-php-ext-install intl
+
+ # Apache config and mod enable
+RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf \
+    && a2enmod rewrite && a2enmod proxy && a2enmod proxy_http
+    # && a2enmod ssl
 
 #####################################
 # NPM:
@@ -202,11 +207,15 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get autoremove
 RUN docker-php-source delete
 
 # Permissions
-RUN chown -R root:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html
 RUN chmod u+rwx,g+rx,o+rx /var/www/html
 RUN find /var/www/html -type d -exec chmod u+rwx,g+rx,o+rx {} +
 RUN find /var/www/html -type f -exec chmod u+rw,g+rw,o+r {} +
 
-CMD ["php-fpm"]
+EXPOSE 80 443
 
-EXPOSE 9000 9003
+#Launch Apache2 on FOREGROUND
+COPY script/apache-proxy-start.sh /opt/
+RUN chmod +x /opt/apache-proxy-start.sh
+ENTRYPOINT ["/opt/apache-proxy-start.sh"]
+

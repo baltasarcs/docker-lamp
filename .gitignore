@@ -3,5 +3,7 @@ mysql/8.0/log/*
 .env
 apache/logs/*
 apache/conf/*
+!apache/conf/apache+fpm/000-default.conf
+!apache/conf/apache+fpm/site.conf-example
 !apache/conf/site.conf-example
 !apache/conf/000-default.conf
